@@ -1,0 +1,75 @@
+{
+  "$defs": {
+    "range": {
+      "type": "object",
+      "description": "Диапазон значений от и до",
+      "properties": {
+        "from": {
+          "type": "integer",
+          "description": "Начальное значение"
+        },
+        "to": {
+          "type": ["integer", "null"],
+          "description": "Конечное значение (null если не задано)"
+        }
+      },
+      "required": ["from", "to"]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Имя и фамилия кандидата"
+    },
+    "position": {
+      "type": "string",
+      "description": "Желаемая должность"
+    },
+    "salary": {
+      "$ref": "#/$defs/range",
+      "description": "Желаемая зарплата (в рублях)"
+    },
+    "experience": {
+      "type": "array",
+      "description": "Опыт работы",
+      "items": {
+        "type": "object",
+        "properties": {
+          "company": {
+            "type": "string",
+            "description": "Название компании"
+          },
+          "role": {
+            "type": "string",
+            "description": "Должность"
+          },
+          "period": {
+            "$ref": "#/$defs/range",
+            "description": "Период работы в формате Unix timestamp"
+          },
+          "achievements": {
+            "type": "array",
+            "description": "Ключевые достижения",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["company", "role", "period"]
+      }
+    },
+    "skills": {
+      "type": "array",
+      "description": "Профессиональные навыки",
+      "items": {
+        "type": "string"
+      }
+    },
+    "expectations": {
+      "type": "string",
+      "description": "Ожидания от работы и компании"
+    }
+  },
+  "required": ["name", "position", "salary", "expectations"]
+}
