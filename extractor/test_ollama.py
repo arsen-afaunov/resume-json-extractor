@@ -7,8 +7,10 @@
 import json
 import time
 import httpx
+import os
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
+OLLAMA_HOST = os.getenv("OLLAMA_URL", "http://localhost:11434")
+OLLAMA_URL = f"{OLLAMA_HOST}/api/generate"
 MODEL = "qwen2.5:3b"
 SCHEMA_FILE = "resume_schema.json"
 

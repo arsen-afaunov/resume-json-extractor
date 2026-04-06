@@ -1,7 +1,7 @@
 services:
   ollama:
     image: ollama/ollama:0.18.3
-    container_name: resume-ollama
+    container_name: ollama
     ports:
       - "11434:11434"
     volumes:
@@ -9,16 +9,16 @@ services:
     environment:
       - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen2.5:3b}
 
-  api:
+  extractor:
     image: python:3.11-slim
-    container_name: resume-api
+    container_name: extractor
     ports:
       - "8000:8000"
     volumes:
-      - ./api:/app
+      - ./extractor:/app
     working_dir: /app
     command: >
-      sh -c "pip install -r requirements.txt &&
+      sh -c "./install.sh &&
              uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
     environment:
       - OLLAMA_URL=http://ollama:11434

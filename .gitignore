@@ -1,4 +1,4 @@
 .env
 .ollama/
 .idea/
-api/.venv/
+extractor/.venv/
