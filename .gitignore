@@ -1,4 +1,7 @@
 .env
 .ollama/
 .idea/
-extractor/.venv/
+**/.venv/
+**/__pycache__/
+*.pyc
+*.pyo
