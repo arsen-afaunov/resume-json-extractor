@@ -1,17 +1,40 @@
 #!/usr/bin/env python3
 """
-Тестовый скрипт для разбиения текста на предложения с помощью razdel.
+Разбиение текста на сырые чанки с помощью RecursiveCharacterTextSplitter.
 """
 
-from razdel import sentenize
+import asyncio
+import re
+
+from fastapi.concurrency import run_in_threadpool
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=80,
+    chunk_overlap=0,
+    separators=["\n\n", "\n", r"(?<=[.!?])\s+", ",", " ", ""],
+    is_separator_regex=True,
+)
 
 
-def extract_sentences(text: str) -> list[str]:
-    """Разбивает текст на предложения."""
-    return [sent.text for sent in sentenize(text)]
+def _clean_chunk(chunk: str) -> str | None:
+    step1 = chunk.strip()
+    step2 = step1.replace("\u00A0", " ")
+    step3 = re.sub(r"\s+", " ", step2)
+    step4 = re.sub(r"^[-•*→–—]\s+", "", step3)
+    if len(step4) >= 2 and any(c.isalnum() for c in step4):
+        return step4
+    return None
 
 
-def main():
+async def extract_raw_chunks(text: str) -> list[str]:
+    """Разбивает текст на сырые чанки с пост-очисткой."""
+    raw_chunks = await run_in_threadpool(_splitter.split_text, text)
+    cleaned = [_clean_chunk(c) for c in raw_chunks]
+    return [c for c in cleaned if c is not None]
+
+
+async def main():
     """Точка входа."""
     sample_text = """
     Меня зовут Иван Петров. Я работаю Python-разработчиком уже 5 лет.
@@ -24,12 +47,12 @@ def main():
     print(sample_text)
     print("\n" + "=" * 50 + "\n")
     
-    sentences = extract_sentences(sample_text)
+    chunks = await extract_raw_chunks(sample_text)
     
-    print(f"Найдено предложений: {len(sentences)}\n")
-    for i, sent in enumerate(sentences, 1):
-        print(f"{i}. {sent}")
+    print(f"Найдено чанков: {len(chunks)}\n")
+    for i, chunk in enumerate(chunks, 1):
+        print(f"{i}. {chunk}")
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
